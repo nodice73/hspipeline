@@ -17,8 +17,8 @@ sub main {
     my %opts;
     getopts('AFCPxt:', \%opts);
 
+    usage() unless @ARGV == 5;
     check_install();
-    HELP_MESSAGE() and die unless @ARGV == 5;
 
     # Controls which parts will be run
     my $align = $opts{'A'} || 0;
@@ -64,7 +64,7 @@ sub main {
         $pattern  = '\_sequence\.txt$';
         $concat   = 0;
     } else {
-        die HELP_MESSAGE();
+        die usage();
     }
 
     print "$program_tag Beginning pipeline...\n";
@@ -434,7 +434,7 @@ sub get_evo_folders {
     return \@paths;
 }
 
-sub HELP_MESSAGE {
+sub usage {
     print STDERR<<"EOF";
 
     Usage: hspipeline [options] <end type> <project folder> <reference genome> <ancestor folder> <R code>
@@ -565,8 +565,11 @@ sub check_install {
             bowtie2-inspect cnvfind sickle igvtools bcftools vcfutils.pl 
             vcfunique breakdancer-max bam2cfg.pl/)
     {
-        die "$_ is not installed." if system("which $_ >/dev/null");
+        if (system("which $_ >/dev/null")) {
+            print "$_ is not installed.\n";
+        }
     }
+    exit;
 }
 
 sub print_time {
