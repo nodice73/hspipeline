@@ -15,8 +15,9 @@ exit;
 sub main {
     $| = 1; # autoflush buffer.
     my %opts;
-    getopts('AFCPxt:', \%opts);
+    getopts('AFCPcxt:', \%opts);
 
+    check_install() if $opts{'c'};
     usage() unless @ARGV == 5;
     check_install();
 
@@ -475,6 +476,7 @@ sub usage {
                             and 'plot_cnv.r'.
 
     Options: 
+             -c     Check that necessary tools are present on the search path.
              -A     Do alignment.
              -F     Find copy number variation and compare to ancestor.
              -C     Compare SNPS in strains to ancestor.
