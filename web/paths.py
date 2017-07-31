@@ -2,6 +2,7 @@ import os
 from getpass import getuser
 
 class Paths(object):
+    base = '/var/www/hspipeline/web'
     local_data = '/media/Data/hspipeline_test'
     local_r    = '/home/ajwaite/Documents/Code/hspipeline'
 
@@ -24,6 +25,6 @@ class Paths(object):
         self.outlog = ''
         self.outlog_final = ''
 
-        (self.proj, self.anc, self.ref) = [os.path.join(Paths.data, p) 
+        (self.proj, self.anc, self.ref) = [os.path.join(Paths.data, p)
                                            for p in [proj, anc, ref]]
         self.proj_web = os.path.join(Paths.data_web, proj)
