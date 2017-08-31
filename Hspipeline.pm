@@ -39,7 +39,14 @@ sub generate_paths {
                     print "concatenating fastq files...";
                     foreach my $r ("R1","R2") {
                         my $search = $r.'_\d+';
-                        my $files = join " ", sort grep /$search/, @dir;
+                        my @files = sort grep /$search/, @dir;
+                        if (scalar @files < 2) {
+                            print "\nOnly found one file,
+                                   skipping concatenation.\n";
+                            push @cats, $files[0];
+                            next;
+                        }
+                        my $files = join " ", @files;
                         my $cat_name = 
                             $strain_folder.'/'.
                             $folder.'_'.$r.'_cat.fastq.gz';
