@@ -8,18 +8,18 @@ from paths import Paths
 
 class Hsprunner(object):
     def __init__(self, form):
-        self.timestamp = strftime("%Y%m%d%H%M", localtime())                   
+        self.timestamp = strftime("%Y%m%d%H%M", localtime())
         self.type = 'p'
-        self.slurm_threads = 8 
+        self.slurm_threads = 8
         self.time = '1-0'
 
-        self.paths = Paths(proj=form.project_path.data, 
+        self.paths = Paths(proj=form.project_path.data,
                            anc=form.anc_path.data, ref=form.ref_path.data)
 
         self.cmd_name = os.path.join(self.paths.silo_base, 'bin/hspipeline')
 
         (self.paths.outlog,
-         self.paths.outlog_final) = [os.path.join(self.paths.proj_web, 
+         self.paths.outlog_final) = [os.path.join(self.paths.proj_web,
                                                   self.timestamp + p)
                                                   for p in
                                                   ['-outlog.txt',
@@ -38,10 +38,10 @@ class Hsprunner(object):
         run_cmd = []
         if getuser() == 'ajwaite':
             self.cmd_name = 'hspipeline'
-            run_cmd = [self.cmd_name, '-t2'] 
+            run_cmd = [self.cmd_name, '-t2']
         else:
             setenv = os.path.join(self.paths.silo_base, 'bin/setenv.sh')
-            run_cmd = ['srun', 
+            run_cmd = ['srun',
                        #'--slurmd-debug=4',
                        '--task-prolog={}'.format(setenv),
                        '-t{}'.format(self.time),
@@ -86,7 +86,7 @@ def _make_command_string(align, trim, find, compare, plot):
     plot = plot and 'P' or ''
     commands = "".join([align, trim, find, compare, plot])
 
-    if commands != "": 
+    if commands != "":
         commands = '-' + commands
 
     return commands
