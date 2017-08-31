@@ -10,7 +10,7 @@ use Time::HiRes;
 my $start = Time::HiRes::gettimeofday();
 main();
 my $end = Time::HiRes::gettimeofday();
-print_time("hspipeline", $start, $end);
+print_time('hspipeline', $start, $end);
 exit;
 
 sub main {
@@ -74,7 +74,7 @@ sub main {
     print "$program_tag Beginning pipeline...\n";
     index_reference($ref_seq);
 
-    print "$program_tag Making paths...";
+    print "$program_tag Making paths...\n";
     my $seq_paths = generate_paths({proj    => $project_path, 
                                     pattern => $pattern,
                                     concat  => $concat});
@@ -240,12 +240,15 @@ sub pe_align {
     my @seqs_to_align = @filtered_seqs;
 
     if ($trim_reads) {
+        my $trim_start = Time::HiRes::gettimeofday();
         @seqs_to_align = @trimmed_names;
         print "Trimming reads...\n";
         my $trim = "sickle pe -t sanger -x".
                    " -f $filtered_seqs[0] -r $filtered_seqs[1]".
                    " -o $seqs_to_align[0] -p $seqs_to_align[1] -s $singles";
         system($trim) == 0 or die "Trimming failed: $!";
+        my $trim_end = Time::HiRes::gettimeofday();
+        print_time('trimming', $trim_start, $trim_end);
     }
     
     my $align = "bowtie2 -p $nthread -x $ref_location".
@@ -256,13 +259,22 @@ sub pe_align {
     my $index = "samtools index $sorted.bam";
 
     print "$program_tag Aligning...\n";
+    my $align_start = Time::HiRes::gettimeofday();
     system($align) == 0 or die "$program_tag Alignment failed: $!";
+    my $align_end = Time::HiRes::gettimeofday();
+    print_time('aligning', $align_start, $align_end);
 
     print "$program_tag Sorting...\n";
+    my $sort_start = Time::HiRes::gettimeofday();
     system($sort) == 0 or die "$program_tag Sorting failed: $!";
+    my $sort_end = Time::HiRes::gettimeofday();
+    print_time('sorting', $sort_start, $sort_end);
 
     print "$program_tag Indexing BAM file...\n";
+    my $index_start = Time::HiRes::gettimeofday();
     system($index) == 0 or die "$program_tag Indexing failed: $!";
+    my $index_end = Time::HiRes::gettimeofday();
+    print_time('indexing', $index_start, $index_end);
 }
 
 sub find_cnv {
