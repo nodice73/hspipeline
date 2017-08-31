@@ -82,8 +82,7 @@ sub get_parent {
 sub get_name {
     my $path = shift;
     chop $path if $path =~ /\/$/;
-    $path =~ /^.*\/(.*)$/;
-    defined $1 ? return $1 : return $path;
+    ($path =~ /^.*\/(.*)$/) ? return $1 :  return $path;
 }
 
 sub scan_genome {
