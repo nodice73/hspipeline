@@ -209,10 +209,10 @@ sub pe_align {
     my $dir = get_parent($seqs->[0]);
     my @seqs = sort @$seqs;
 
-    my $program_tag = "[pe_align]";
+    my $program_tag = '[pe_align]';
 
     my $ref_folder   = get_parent($ref_seq);
-    my $ref_name     = get_name($ref_folder);
+    my $ref_name     = get_name($ref_seq);
     my $ref_location = $ref_folder.'/'.$ref_name;
 
     # Input/output filenames
@@ -227,13 +227,15 @@ sub pe_align {
     my @filtered_seqs = ();
     for my $seq (@seqs) {
         next if $seq =~ /trimmed/;
-        next unless $seq =~ /^(.*)cat\.fastq\.gz$/;
-        #print "seq: $seq\n";
+        next unless $seq =~ /^(.*)\.fastq\.gz$/;
+        print "seq: $seq\n";
         my $name = $1;
         my $trimmed_name = $name.'_trimmed.fastq';
         push @trimmed_names, $trimmed_name;
         push @filtered_seqs, $seq;
     }
+    die "$program_tag No sequences pass filter!\n"
+        unless scalar @filtered_seqs > 0;
 
     my @seqs_to_align = @filtered_seqs;
 
@@ -444,7 +446,7 @@ sub usage {
     Usage: hspipeline [options] <end type> <project folder> <reference genome> <ancestor folder> <R code>
 
     REQUIREMENTS:
-        Install R, bowtie2, and samtools (which includes 'bcftools' and
+        Install R, bowtie2, sickle, and samtools (which includes 'bcftools' and
         'vcfutils.pl').  Ensure that all of these programs are on the
         computer's search path (i.e., they run when typed at a terminal
         prompt from your home folder).
@@ -479,12 +481,13 @@ sub usage {
                             and 'plot_cnv.r'.
 
     Options: 
-             -c     Check that necessary tools are present on the search path.
              -A     Do alignment.
              -F     Find copy number variation and compare to ancestor.
              -C     Compare SNPS in strains to ancestor.
              -P     Plot results and generate deletion and cnv locations.
              -t     Number of threads to use in alignment [1].
+             -c     Check that necessary tools are present on the search path.
+             -x     Trim reads before alignment.
 
 EOF
     exit;
