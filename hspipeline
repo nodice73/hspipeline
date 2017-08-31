@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use lib '/var/www/hspipeline';
 use Getopt::Std;
 use Data::Dumper;
 use Hspipeline;
@@ -16,6 +17,7 @@ sub main {
     $| = 1; # autoflush buffer.
     my %opts;
     getopts('AFCPcxt:', \%opts);
+    $opts{'t'} = 1;
 
     check_install() if $opts{'c'};
     usage() unless @ARGV == 5;
@@ -31,7 +33,7 @@ sub main {
     my $trim  = $opts{'x'} || 0;
 
     # Number of threads to use for the alignment.
-    my ($nthread) = $opts{'t'} =~ /^\d+$/;
+    my ($nthread) = $opts{'t'} =~ /^(\d+)$/ || 1;
 
     my ($end_type)     = $ARGV[0] =~ /^(p|e)$/;
     my ($project_path) = $ARGV[1] =~ /^([-\/.\w]+)$/;
@@ -52,6 +54,7 @@ sub main {
     for ($project_path, $anc_folder, $R_code_path) {
         chop if $_ =~ /\/$/;
     }
+
 
     my $align_func;
     my $pattern;
@@ -342,7 +345,7 @@ sub index_reference {
     my $ref_path = shift;
 
     my $parent      = get_parent($ref_path);
-    my $index_name  = get_name($parent);
+    my $index_name  = get_name($ref_path);
     my $index_match = 'bt2$';
 
     my $index = "bowtie2-build $ref_path $parent/$index_name";
@@ -563,15 +566,17 @@ sub se_align {
 }
 
 sub check_install {
-    for (qw/fastq_quality_trimmer R bowtie2 bowtie2-align bowtie2-build 
+    my $missing = 0;
+    for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
             bowtie2-inspect cnvfind sickle igvtools bcftools vcfutils.pl 
-            vcfunique breakdancer-max bam2cfg.pl/)
+            vcfunique/)
     {
         if (system("which $_ >/dev/null")) {
+            $missing = 1;
             print "$_ is not installed.\n";
         }
     }
-    exit;
+    exit if $missing;
 }
 
 sub print_time {
