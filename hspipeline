@@ -219,7 +219,7 @@ sub pe_align {
     my $pfx          = $dir.'/'.$strain_name;
     my $singles      = $pfx.'_singles.fastq';
     my $bam          = $pfx.'_aligned.bam';
-    my $sorted       = $pfx.'_sorted';
+    my $sorted       = $pfx.'_sorted.bam';
 
     print "$program_tag Processing $strain_name...\n";
 
@@ -255,8 +255,8 @@ sub pe_align {
                 " -1 $seqs_to_align[0] -2 $seqs_to_align[1]".
                 " | samtools view -bS - > $bam";
 
-    my $sort = "samtools sort $bam $sorted";
-    my $index = "samtools index $sorted.bam";
+    my $sort = "samtools sort $bam -o $sorted";
+    my $index = "samtools index $sorted";
 
     print "$program_tag Aligning...\n";
     my $align_start = Time::HiRes::gettimeofday();
@@ -368,10 +368,10 @@ sub index_reference {
     # performed.
     opendir(my $dh, $parent);
     unless (grep /$index_match/, readdir($dh)) {
-        print "[hspipeline] Indexing genome...\n";
+        print "[hspipeline] Indexing reference genome...\n";
         system($index) == 0 or die "Indexing failed: $!";
     } else {
-        print "[hspipeline] Looks like sequence has been indexed,".
+        print "[hspipeline] Looks like reference sequence has been indexed,".
               " continuing...\n";
     }
     close $dh;
