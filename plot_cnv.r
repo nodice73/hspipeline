@@ -13,9 +13,13 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
 
     if (!file.exists(anc.cov.plot.path)) dir.create(anc.cov.plot.path)
 
-    chrom.order <- paste("chr",c("I","II","III","IV","V","VI","VII",
-                                 "VIII","IX","X","XI","XII","XIII",
-                                 "XIV","XV","XVI","M"), sep="")
+    #chrom.order <- paste("chr",c("I","II","III","IV","V","VI","VII",
+    #                             "VIII","IX","X","XI","XII","XIII",
+    #                             "XIV","XV","XVI","M"), sep="")
+
+    chrom.order <- paste("Chr",c("1","2","3","4","5","6","7",
+                                 "8","9","10","11","12","13",
+                                 "14","15","16","M"), sep="")
 
     get.x.ticks <- function(x) {
         max.pos <- max(x$pos)
