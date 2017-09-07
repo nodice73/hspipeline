@@ -13,13 +13,14 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
 
     if (!file.exists(anc.cov.plot.path)) dir.create(anc.cov.plot.path)
 
+    #mito.label <- "chrM"
+    mito.label <- "mitochondrion"
+
     #chrom.order <- paste("chr",c("I","II","III","IV","V","VI","VII",
     #                             "VIII","IX","X","XI","XII","XIII",
     #                             "XIV","XV","XVI","M"), sep="")
 
-    chrom.order <- paste("Chr",c("1","2","3","4","5","6","7",
-                                 "8","9","10","11","12","13",
-                                 "14","15","16","M"), sep="")
+    chrom.order <- c(paste0("Chr",seq.int(1,16)), mito.label)
 
     get.x.ticks <- function(x) {
         max.pos <- max(x$pos)
@@ -130,7 +131,7 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
             dev.off()
             cat("done!\n")
 
-            if (current.chrom != "chrM") {
+            if (current.chrom != mito.label) {
                 cat("[plot.cnv] Adding to genome coverage ratio plot...",
                     sep="")
                 xpos <- genome.cnv.plot(genome.reduced, xpos)
@@ -176,7 +177,7 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
             plot.depthstats(file.path(anc.path,
                                       paste(anc.name,depthstats.ext,
                                             sep="")),
-                            chrom.order)
+                            chrom.order, mito.label)
 
             dev.off()
             cat("done!\n")
@@ -189,7 +190,7 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
         plot.depthstats(file.path(strain.path,
                                   paste(strain.name,depthstats.ext,
                                         sep="")),
-                        chrom.order)
+                        chrom.order, mito.label)
         dev.off()
         cat("done!\n")
         gc()
@@ -200,14 +201,14 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
     cat("\n")
 }
 
-plot.depthstats <- function(file.location,chr.order) {
-    chr.order <- chr.order[chr.order!="chrM"]
+plot.depthstats <- function(file.location, chr.order, mito.label) {
+    chr.order <- chr.order[chr.order != mito.label]
 
     name <- basename(file.location)
     mean.col <- 7
     sd.col   <- 8
     depth.dat <- read.delim(file.location,comment.char="#", as.is=1)
-    depth.dat <- droplevels(subset(depth.dat, chromosome != "chrM"))
+    depth.dat <- droplevels(subset(depth.dat, chromosome != mito.label))
     depth.dat <- depth.dat[match(chr.order,depth.dat$chromosome),]
     depth.dat$chromosome <- factor(depth.dat$chromosome,
                                    levels=depth.dat$chromosome)
