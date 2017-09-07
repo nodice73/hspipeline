@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use lib '/var/www/hspipeline';
+use Hspipeline;
 use Getopt::Std;
 use Data::Dumper;
 use Hspipeline;
@@ -285,41 +285,56 @@ sub find_cnv {
     my $pileup_ext = $p->{pileup_ext};
     my $R_path     = $p->{R_path};
 
+    my $program_tag = "[find_cnv]";
+
     my $evo_name = get_name($evo_folder);
     my $anc_name = get_name($anc_folder);
 
-    print "anc: $anc_name\n";
-    print "evo: $evo_name\n";
+    print $program_tag, "\n";
+    print "\tanc: $anc_name\n";
+    print "\tevo: $evo_name\n";
 
     my $pfx          = $evo_folder.'/'.$evo_name;
-    my $sorted       = $pfx."_sorted";
-    my $pileup       = $sorted.".pileup";
+    my $sorted       = $pfx."_sorted.bam";
+    my $pileup       = $pfx."_sorted.pileup";
     my $likelihoods_bcf = $pfx."_var_likelihoods.bcf";
     my $var_bcf      = $pfx."_raw_vars.bcf";
     my $var_vcf      = $pfx."_raw_vars.vcf";
 
-    my $program_tag = "[find_cnv]";
-
     my $make_pileup = 
-        "samtools mpileup -BQ0 -d10000000 -f $ref_seq  $sorted.bam > $pileup";
-    my $make_pileup_bcf = 
-        "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted.bam > ".
+        "samtools mpileup -BQ0 -d10000000 -f $ref_seq $sorted -o $pileup";
+
+    my $compute_likelihoods = 
+        "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted -o ".
         $likelihoods_bcf;
-    my $call_vars   = "bcftools view -Nbvcg $likelihoods_bcf > $var_bcf";
-    my $vars_to_vcf = "bcftools view $var_bcf > $var_vcf";
+
+    my $call_vars = 
+        "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf -o $var_vcf";
 
     print "$program_tag Generating pileup...\n";
+    my $pileup_start = Time::HiRes::gettimeofday();
     system($make_pileup) == 0 or die "$program_tag Pileup failed: $!";
+    my $pileup_end = Time::HiRes::gettimeofday();
+    print_time("pileup", $pileup_start, $pileup_end);
 
-    print "$program_tag Generating pileup bcf...\n";
-    system($make_pileup_bcf) == 0 or die "$program_tag Pileup failed: $!";
+    print "$program_tag Generating likelihoods...\n";
+    my $bcf_start = Time::HiRes::gettimeofday();
+    system($compute_likelihoods) == 0 or die "$program_tag Pileup failed: $!";
+    my $bcf_end = Time::HiRes::gettimeofday();
+    print_time("generating bcf", $bcf_start, $bcf_end);
 
     print "$program_tag Calling variants...\n";
+    my $var_start = Time::HiRes::gettimeofday();
     system($call_vars) == 0 or die "$program_tag Calling variants failed: $!";
+    my $var_end = Time::HiRes::gettimeofday();
+    print_time("calling variants", $var_start, $var_end);
 
-    print "$program_tag Converting variants to vcf...\n";
-    system($vars_to_vcf) == 0 
-        or die "$program_tag Converting vars to vcf failed: $!";
+    #print "$program_tag Converting variants to vcf...\n";
+    #my $conv_start = Time::HiRes::gettimeofday();
+    #system($vars_to_vcf) == 0 
+    #    or die "$program_tag Converting vars to vcf failed: $!";
+    #my $conv_end = Time::HiRes::gettimeofday();
+    #print_time("converting to vcf", $conv_start, $conv_end);
 
 
     unless ($anc_folder eq $evo_folder) {
@@ -541,7 +556,7 @@ sub se_align {
     my $make_pileup_bcf = 
     "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted.bam > $pileup_bcf";
 
-    my $call_vars   = "bcftools view -Nbvcg $pileup_bcf > $var_bcf";
+    my $call_vars   = "bcftools call -Nbvcg $pileup_bcf > $var_bcf";
 
     my $vars_to_vcf = "bcftools view $var_bcf > $var_vcf";
 
@@ -583,8 +598,8 @@ sub se_align {
 sub check_install {
     my $missing = 0;
     for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
-            bowtie2-inspect cnvfind sickle igvtools bcftools vcfutils.pl 
-            vcfunique/)
+            bowtie2-inspect cnvfind sickle igvtools 
+            igvtools.jar bcftools vcfutils.pl vcfunique/)
     {
         if (system("which $_ >/dev/null")) {
             $missing = 1;
