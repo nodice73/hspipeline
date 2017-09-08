@@ -150,7 +150,8 @@ sub scan_genome {
     while (<$f>) {
         # Line is chrom pos depth
         my @line  = split;
-        next unless @line == 6;
+        die "[scan_genome] unexpected file format for $file\n"
+             unless @line == 3;
         $chrom = $line[0];
         $pos   = $line[1];
         my $site_depth = $line[2];
