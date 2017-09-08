@@ -148,6 +148,20 @@ sub main {
 
     # Creates in_x_and_y.txt, in_x_not_y.txt, etc. files.
     if ($compare) {
+        print "\n[hspipeline] Comparing all strains to each other...\n";
+        my @cvcfs = ();
+        while (my ($strain,$seq) = each %$seq_paths) {
+            push @cvcfs, get_parent(@$seq[0]).'/'.$strain.'_raw_vars.vcf.gz';
+        }
+
+        my $compare_all_dir = $project_path.'/all_comparisons';
+        my $compare_all =
+            "bcftools isec -p $compare_all_dir " . join(" ", @cvcfs);
+
+
+        run_and_time('[hspipeline]', 'all comparisons', $compare_all);
+
+
         print "\n[hspipeline] Comparing to ancestor...\n";
         my $start = Time::HiRes::gettimeofday();
         while (my ($strain,$seq) = each %$seq_paths) {
@@ -279,14 +293,15 @@ sub find_cnv {
     print "\tanc: $anc_name\n";
     print "\tevo: $evo_name\n";
 
-    my $depth_ext = "_sorted.depth";
+    my $depth_ext = '_sorted.depth';
     my $pfx       = $evo_folder.'/'.$evo_name;
 
-    my $sorted       = $pfx."_sorted.bam";
+    my $sorted       = $pfx.'_sorted.bam';
     my $depth        = $pfx.$depth_ext;
-    my $likelihoods_bcf = $pfx."_var_likelihoods.bcf";
-    my $var_bcf      = $pfx."_raw_vars.bcf";
-    my $var_vcf      = $pfx."_raw_vars.vcf";
+    my $likelihoods_bcf = $pfx.'_var_likelihoods.bcf';
+    my $var_bcf      = $pfx.'_raw_vars.bcf';
+    my $var_vcf      = $pfx.'_raw_vars.vcf';
+    my $var_cvcf     = $var_vcf.'.gz';
 
     my $get_depth = "samtools depth -a $sorted > $depth";
 
@@ -297,6 +312,9 @@ sub find_cnv {
     my $call_vars = 
         "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf > $var_vcf";
 
+    my $compress_vcf = "bcftools view $var_vcf -Oz > $var_cvcf";
+    my $index_cvcf = "bcftools index $var_cvcf";
+
     print "$program_tag Getting read depth...\n";
     run_and_time($program_tag, 'depth', $get_depth);
 
@@ -305,6 +323,13 @@ sub find_cnv {
 
     print "$program_tag Calling variants...\n";
     run_and_time($program_tag, 'calling variants', $call_vars);
+
+    print "$program_tag Compressing vcf...\n";
+    run_and_time($program_tag, 'compressing', $compress_vcf);
+
+    print "$program_tag Indexing compressed vcf...\n";
+    run_and_time($program_tag, 'indexing', $index_cvcf);
+
 
     unless ($anc_folder eq $evo_folder) {
         my $evo_depth = $evo_folder.'/'.$evo_name.$depth_ext;
@@ -407,6 +432,8 @@ sub compare_to_anc {
     my $file_suffix  = $p->{file};
     my $vcf_tol      = $p->{vcf_tol};
 
+    my $program_tag = '[compare_to_anc]';
+
     my $anc_name = get_name($anc_folder);
     return if $strain =~ /$anc_name/;
 
@@ -419,7 +446,7 @@ sub compare_to_anc {
     print "Finding entries in ".$strain.$file_suffix.
           " that are not in ancestral strain...";
     my $vcfunique = "vcfunique -d$vcf_tol $anc $evo $save_folder";
-    system($vcfunique) == 0 or die "vcfunique failed: $!";
+    run_and_time($program_tag, 'comparing', $vcfunique);
 
     print "done!\n";
 }
