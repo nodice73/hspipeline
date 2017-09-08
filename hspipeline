@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Hspipeline;
 use Getopt::Std;
 use Data::Dumper;
 use Hspipeline;
@@ -185,15 +184,15 @@ sub main {
         print_time("compare", $start, $end);
     }
 
-    print "Setting folder permissions...\n";
+    print "$program_tag Setting folder permissions...\n";
     my $chmod = "chmod -R g+w $project_path";
-    system($chmod) == 0 
-        or print "Changing folder permissions gave error: $!\n";
+    run_and_time($program_tag, 'setting folder permissions', $chmod);
 
-    print "Indexing vcfs...\n";
+    print "$program_tag Indexing vcfs...\n";
+
     my $index_vcfs = "find $project_path -name '*.vcf' | ".
                      "xargs -I{} igvtools index {}";
-    system($index_vcfs) == 0 or die "Indexing vcfs failed: $!";
+    run_and_time($program_tag, 'indexing vcfs', $index_vcfs);
 
     print "Done!\n\n";
 }
@@ -242,13 +241,12 @@ sub pe_align {
     if ($trim_reads) {
         my $trim_start = Time::HiRes::gettimeofday();
         @seqs_to_align = @trimmed_names;
-        print "Trimming reads...\n";
+
+        print "$program_tag Trimming reads...\n";
         my $trim = "sickle pe -t sanger -x".
                    " -f $filtered_seqs[0] -r $filtered_seqs[1]".
                    " -o $seqs_to_align[0] -p $seqs_to_align[1] -s $singles";
-        system($trim) == 0 or die "Trimming failed: $!";
-        my $trim_end = Time::HiRes::gettimeofday();
-        print_time('trimming', $trim_start, $trim_end);
+        run_and_time($program_tag, 'trimming reads', $trim);
     }
     
     my $align = "bowtie2 -p $nthread -x $ref_location".
@@ -259,22 +257,13 @@ sub pe_align {
     my $index = "samtools index $sorted";
 
     print "$program_tag Aligning...\n";
-    my $align_start = Time::HiRes::gettimeofday();
-    system($align) == 0 or die "$program_tag Alignment failed: $!";
-    my $align_end = Time::HiRes::gettimeofday();
-    print_time('aligning', $align_start, $align_end);
+    run_and_time($program_tag, 'aligning', $align);
 
     print "$program_tag Sorting...\n";
-    my $sort_start = Time::HiRes::gettimeofday();
-    system($sort) == 0 or die "$program_tag Sorting failed: $!";
-    my $sort_end = Time::HiRes::gettimeofday();
-    print_time('sorting', $sort_start, $sort_end);
+    run_and_time($program_tag, 'sorting', $sort);
 
     print "$program_tag Indexing BAM file...\n";
-    my $index_start = Time::HiRes::gettimeofday();
-    system($index) == 0 or die "$program_tag Indexing failed: $!";
-    my $index_end = Time::HiRes::gettimeofday();
-    print_time('indexing', $index_start, $index_end);
+    run_and_time($program_tag, 'indexing BAM file', $index);
 }
 
 sub find_cnv {
@@ -297,12 +286,15 @@ sub find_cnv {
     my $pfx          = $evo_folder.'/'.$evo_name;
     my $sorted       = $pfx."_sorted.bam";
     my $pileup       = $pfx."_sorted.pileup";
+    my $depth        = $pfx."_sorted.depth";
     my $likelihoods_bcf = $pfx."_var_likelihoods.bcf";
     my $var_bcf      = $pfx."_raw_vars.bcf";
     my $var_vcf      = $pfx."_raw_vars.vcf";
 
     my $make_pileup = 
         "samtools mpileup -BQ0 -d10000000 -f $ref_seq $sorted -o $pileup";
+
+    my $get_depth = "samtools depth -a $sorted > $depth";
 
     my $compute_likelihoods = 
         "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted -o ".
@@ -311,31 +303,18 @@ sub find_cnv {
     my $call_vars = 
         "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf -o $var_vcf";
 
+
     print "$program_tag Generating pileup...\n";
-    my $pileup_start = Time::HiRes::gettimeofday();
-    system($make_pileup) == 0 or die "$program_tag Pileup failed: $!";
-    my $pileup_end = Time::HiRes::gettimeofday();
-    print_time("pileup", $pileup_start, $pileup_end);
+    run_and_time($program_tag, 'pileup', $make_pileup);
+
+    #print "$program_tag Getting read depth...\n";
+    #run_and_time($program_tag, 'depth', $get_depth);
 
     print "$program_tag Generating likelihoods...\n";
-    my $bcf_start = Time::HiRes::gettimeofday();
-    system($compute_likelihoods) == 0 or die "$program_tag Pileup failed: $!";
-    my $bcf_end = Time::HiRes::gettimeofday();
-    print_time("generating bcf", $bcf_start, $bcf_end);
+    run_and_time($program_tag, 'likelihood', $compute_likelihoods);
 
     print "$program_tag Calling variants...\n";
-    my $var_start = Time::HiRes::gettimeofday();
-    system($call_vars) == 0 or die "$program_tag Calling variants failed: $!";
-    my $var_end = Time::HiRes::gettimeofday();
-    print_time("calling variants", $var_start, $var_end);
-
-    #print "$program_tag Converting variants to vcf...\n";
-    #my $conv_start = Time::HiRes::gettimeofday();
-    #system($vars_to_vcf) == 0 
-    #    or die "$program_tag Converting vars to vcf failed: $!";
-    #my $conv_end = Time::HiRes::gettimeofday();
-    #print_time("converting to vcf", $conv_start, $conv_end);
-
+    run_and_time($program_tag, 'calling variants', $call_vars);
 
     unless ($anc_folder eq $evo_folder) {
         my $evo_pileup = $evo_folder.'/'.$evo_name.$pileup_ext;
@@ -607,13 +586,4 @@ sub check_install {
         }
     }
     exit if $missing;
-}
-
-sub print_time {
-    my $what = shift;
-    my $start = shift;
-    my $end = shift;
-
-    my $min = ($end-$start)/60.0;
-    printf("\n***[hspipeline] $what took %.2f minutes to run.***\n\n", $min);
 }

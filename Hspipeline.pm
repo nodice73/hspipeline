@@ -1,9 +1,32 @@
 package Hspipeline;
 use strict; use warnings; 
 use Data::Dumper;
+use Time::HiRes;
+
 our $VERSION = 1.00;
 our @ISA = qw/Exporter/;
-our @EXPORT = qw/generate_paths scan_genome get_name get_parent namer/;
+our @EXPORT = qw/run_and_time print_time generate_paths scan_genome get_name 
+                 get_parent namer/;
+
+sub run_and_time {
+    my $prog_tag = shift;
+    my $name     = shift;
+    my $syscall  = shift;
+
+    my $start = Time::HiRes::gettimeofday();
+    system($syscall) == 0 or die "$prog_tag $name failed: $!";
+    my $end = Time::HiRes::gettimeofday();
+    print_time($name, $start, $end);
+}
+
+sub print_time {
+    my $what = shift;
+    my $start = shift;
+    my $end = shift;
+
+    my $min = ($end-$start)/60.0;
+    printf("\n***[hspipeline] $what took %.2f minutes to run.***\n\n", $min);
+}
 
 sub generate_paths {
     my ($p) = @_;
