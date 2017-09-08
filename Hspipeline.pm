@@ -101,8 +101,7 @@ sub generate_paths {
 
 sub get_parent {
     my $path = shift;
-    $path =~ /^(.*\/).*$/;
-    if (defined $1) {
+    if ($path =~ /^(.*\/).*$/) {
         my $parent = $1;
         chop $parent;
         return $parent;
