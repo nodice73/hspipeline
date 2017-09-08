@@ -91,7 +91,7 @@ sub compare_depth {
         my $genome_log2_ratio;
 
         # Both have depth > 0
-        if (defined $adepth && defined $edepth) {
+        if ($adepth > 0 && $edepth > 0) {
             $chrom_ratio = 
                 normalized_ratio($edepth,$adepth,
                                  $evo->{chrom_data}{$chunk}{ave},
@@ -107,21 +107,21 @@ sub compare_depth {
 
         # Evolved has no reads at this position:
         # deletion or change in evolved
-        } elsif (defined $adepth && !defined $edepth) {
+        } elsif ($adepth > 0 && $edepth == 0) {
             $edepth = 0;
             $chrom_ratio = $genome_ratio = 0;
             $chrom_log2_ratio = $genome_log2_ratio = -999;
 
         # Ancestor has no reads at this position:
         # addition in evoved
-        } elsif (!defined $adepth && defined $edepth) {
+        } elsif ($adepth == 0 && $edepth > 0) {
             $adepth = 0;
             $chrom_ratio = $genome_ratio = 'Inf';
             $chrom_log2_ratio = $genome_log2_ratio = 999;
 
         # Neither strain has reads at this position:
         # missing in both
-        } elsif (!defined $adepth && !defined $edepth) {
+        } elsif ($adepth == 0 && $edepth == 0) {
             $adepth = $edepth = 0;
             $chrom_ratio = $genome_ratio = 'NA';
             $chrom_log2_ratio = $genome_log2_ratio = 'NA';
