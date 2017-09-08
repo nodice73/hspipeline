@@ -84,6 +84,7 @@ sub main {
     #print Dumper($evo_folders);
     #print $anc_folder;
     #print "\n";
+    #die;
 
     # Creates _aligned.bam, _sorted.bam, _sorted.bam.bai, 
     if ($align) {
@@ -279,7 +280,7 @@ sub find_cnv {
     print "\tevo: $evo_name\n";
 
     my $depth_ext = "_sorted.depth";
-    my $pfx          = $evo_folder.'/'.$evo_name;
+    my $pfx       = $evo_folder.'/'.$evo_name;
 
     my $sorted       = $pfx."_sorted.bam";
     my $depth        = $pfx.$depth_ext;
