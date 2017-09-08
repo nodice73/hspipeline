@@ -45,8 +45,8 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
         dat <- read.delim(data.file,
                           # reduces load time ~ 1.6x.
                           colClasses=c("character",    
-                                       rep("integer",3),
-                                       rep("numeric",4)),
+                                       rep("integer",2),
+                                       rep("numeric",5)),
                           # small further reduction.
                           nrows=1.3e7, 
                          )
@@ -306,17 +306,17 @@ setup.genome.cnv.plot <- function(name, yrange=c(-2.5,2.5))
          ylab="log2(evo/anc)", xlab="")
 
     axis(2,lwd.ticks=par()$lwd,las=2)
+    mtext("chromosome",side=1, line=3, cex=par()$cex*1.5)
     box()
 }
 
 genome.cnv.plot <- function(ratio.data,x.start) {
     x.end <- max(ratio.data$pos)+x.start
-    chrom <- gsub("chr","",ratio.data$chrom[1])
+    chrom <- gsub("Chr","",ratio.data$chrom[1])
 
     abline(v=x.end,col="blue",lwd=par()$lwd/2)
     lines(log2.genome.ratio~I(pos+x.start), data=ratio.data)
     mtext(chrom, side=1, line=1, at=(x.start+x.end)/2, cex=2)
-    mtext("chromosome",side=1, line=3, cex=par()$cex*1.5)
 
     x.end
 }
