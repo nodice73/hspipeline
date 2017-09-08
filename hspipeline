@@ -148,15 +148,16 @@ sub main {
 
     # Creates in_x_and_y.txt, in_x_not_y.txt, etc. files.
     if ($compare) {
-        print "\n[hspipeline] Comparing all strains to each other...\n";
+        print "\n[hspipeline] Finding unique variants...\n";
         my @cvcfs = ();
         while (my ($strain,$seq) = each %$seq_paths) {
             push @cvcfs, get_parent(@$seq[0]).'/'.$strain.'_raw_vars.vcf.gz';
         }
 
-        my $compare_all_dir = $project_path.'/all_comparisons';
+        my $compare_all_dir = $project_path.'/unique_variants';
         my $compare_all =
-            "bcftools isec -p $compare_all_dir " . join(" ", @cvcfs);
+            "bcftools isec -p $compare_all_dir --nfiles=1 ".
+            join(" ", @cvcfs);
 
 
         run_and_time('[hspipeline]', 'all comparisons', $compare_all);
