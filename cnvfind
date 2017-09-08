@@ -8,19 +8,19 @@ $| = 1;
 exit;
 
 sub main {
-    print "cnvfind <R_path> <ancestor_path> <ancestor.pileup> <evolved.pileup 1>...<evolved.pileup n>" and die unless @ARGV > 3;
+    print "cnvfind <R_path> <ancestor_path> <ancestor.depth> <evolved.depth 1>...<evolved.depth n>" and die unless @ARGV > 3;
 
     my $R_path     = $ARGV[0];
     my $anc_path   = $ARGV[1];
-    my $anc_pileup = $ARGV[2];
+    my $anc_depth = $ARGV[2];
     my $evo_start_idx  = 3;
 
     my @evo_paths = map{get_parent($_)} @ARGV[$evo_start_idx..$#ARGV];
 
     my $anc_name = get_name($anc_path);
 
-    print "[cnvfind] Getting depth stats for $anc_pileup...\n";
-    my $anc_cov = scan_genome({file=>$anc_pileup,
+    print "[cnvfind] Getting depth stats for $anc_depth...\n";
+    my $anc_cov = scan_genome({file=>$anc_depth,
                                max_depth=>1000, print=>1});
     print "\n";
 
@@ -31,12 +31,12 @@ sub main {
 
     my $cnv_ext = "_cnvfind.txt";
     for (my $i=$evo_start_idx; $i<@ARGV; $i++) {
-        my $evo_pileup = $ARGV[$i];
-        my $evo_path   = get_parent($evo_pileup);
+        my $evo_depth = $ARGV[$i];
+        my $evo_path   = get_parent($evo_depth);
         my $evo_name   = get_name($evo_path);
 
-        print "[cnvfind] Getting depth stats for $evo_pileup...\n";
-        my $evo_cov = scan_genome({file=>$evo_pileup, 
+        print "[cnvfind] Getting depth stats for $evo_depth...\n";
+        my $evo_cov = scan_genome({file=>$evo_depth, 
                                    max_depth=>1000,
                                    print=>1});
         print "\n";

@@ -148,12 +148,12 @@ sub scan_genome {
 
     open my $f, '<', $file or die "Cannot open $file: $!";
     while (<$f>) {
-        # Line is chrom pos ref depth seq qual
+        # Line is chrom pos depth
         my @line  = split;
         next unless @line == 6;
         $chrom = $line[0];
         $pos   = $line[1];
-        my $site_depth = $line[3];
+        my $site_depth = $line[2];
         if ($current eq "") {
             $current = $chrom;
             print STDERR "[scan_genome] Processing '$chrom'...";

@@ -106,14 +106,12 @@ sub main {
     # _raw_vars.bcf
     if ($find) {
         print "\n[hspipeline] Finding CNV...\n";
-        my $pileup_ext = "_sorted.pileup";
 
         my $start = Time::HiRes::gettimeofday();
         find_cnv({
                 ref        => $ref_seq,
                 anc_folder => $anc_folder,
                 evo_folder => $anc_folder,
-                pileup_ext => $pileup_ext,
                 R_path     => $R_code_path,
             });
         for my $evo_folder (@$evo_folders) {
@@ -121,7 +119,6 @@ sub main {
                     ref        => $ref_seq,
                     anc_folder => $anc_folder,
                     evo_folder => $evo_folder,
-                    pileup_ext => $pileup_ext,
                     R_path     => $R_code_path,
                 });
         }
@@ -239,7 +236,6 @@ sub pe_align {
     my @seqs_to_align = @filtered_seqs;
 
     if ($trim_reads) {
-        my $trim_start = Time::HiRes::gettimeofday();
         @seqs_to_align = @trimmed_names;
 
         print "$program_tag Trimming reads...\n";
@@ -271,7 +267,6 @@ sub find_cnv {
     my $ref_seq    = $p->{ref};
     my $anc_folder = $p->{anc_folder};
     my $evo_folder = $p->{evo_folder};
-    my $pileup_ext = $p->{pileup_ext};
     my $R_path     = $p->{R_path};
 
     my $program_tag = "[find_cnv]";
@@ -283,32 +278,26 @@ sub find_cnv {
     print "\tanc: $anc_name\n";
     print "\tevo: $evo_name\n";
 
+    my $depth_ext = "_sorted.depth";
     my $pfx          = $evo_folder.'/'.$evo_name;
+
     my $sorted       = $pfx."_sorted.bam";
-    my $pileup       = $pfx."_sorted.pileup";
-    my $depth        = $pfx."_sorted.depth";
+    my $depth        = $pfx.$depth_ext;
     my $likelihoods_bcf = $pfx."_var_likelihoods.bcf";
     my $var_bcf      = $pfx."_raw_vars.bcf";
     my $var_vcf      = $pfx."_raw_vars.vcf";
 
-    my $make_pileup = 
-        "samtools mpileup -BQ0 -d10000000 -f $ref_seq $sorted -o $pileup";
-
     my $get_depth = "samtools depth -a $sorted > $depth";
 
     my $compute_likelihoods = 
-        "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted -o ".
+        "bcftools mpileup -B -Ou -C50 -q30 -f $ref_seq $sorted > ".
         $likelihoods_bcf;
 
     my $call_vars = 
-        "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf -o $var_vcf";
+        "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf > $var_vcf";
 
-
-    print "$program_tag Generating pileup...\n";
-    run_and_time($program_tag, 'pileup', $make_pileup);
-
-    #print "$program_tag Getting read depth...\n";
-    #run_and_time($program_tag, 'depth', $get_depth);
+    print "$program_tag Getting read depth...\n";
+    run_and_time($program_tag, 'depth', $get_depth);
 
     print "$program_tag Generating likelihoods...\n";
     run_and_time($program_tag, 'likelihood', $compute_likelihoods);
@@ -317,11 +306,11 @@ sub find_cnv {
     run_and_time($program_tag, 'calling variants', $call_vars);
 
     unless ($anc_folder eq $evo_folder) {
-        my $evo_pileup = $evo_folder.'/'.$evo_name.$pileup_ext;
-        my $anc_pileup  = $anc_folder.'/'.$anc_name.$pileup_ext;
+        my $evo_depth = $evo_folder.'/'.$evo_name.$depth_ext;
+        my $anc_depth  = $anc_folder.'/'.$anc_name.$depth_ext;
 
-        my @cnvfind = ("cnvfind", $R_path, $anc_folder, $anc_pileup,
-                       $evo_pileup);
+        my @cnvfind = ("cnvfind", $R_path, $anc_folder,
+                       $anc_depth, $evo_depth);
 
         system(@cnvfind)==0 or die "cnvfind failed: $!";
     }
