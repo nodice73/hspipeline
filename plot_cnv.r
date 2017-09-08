@@ -331,12 +331,12 @@ table.write <- function(dat,path,name,ext) {
 
 
 get.dels <- function(chrom,miss,min.del.size) {
-  if (length(miss)==0) return()
-  intervals <- seqToIntervals(miss)
-  ints <- data.frame(chrom=chrom,intervals)
-  ints <- within(ints, length <- (to-from)+1)
-  ints <- subset(ints,length>=min.del.size)
-  ints
+    if (length(miss)==0) return()
+    intervals <- seqToIntervals(miss)
+    ints <- data.frame(chrom=chrom,intervals)
+    ints <- within(ints, length <- (to-from)+1)
+    ints <- subset(ints,length>=min.del.size)
+    ints
 }
 
 reduce <- function(dat.frame, every) {
@@ -345,74 +345,74 @@ reduce <- function(dat.frame, every) {
 
 sliding.window <- function(dat, size=50) {
 
-  beg <- count <- 1
-  en  <- size
+    beg <- count <- 1
+    en  <- size
 
-  row.est  <- ceiling(nrow(dat)/size)
-  dat.mat  <- as.matrix(dat[-1])
-  windowed <- matrix(ncol=7,nrow=row.est)
-  while(en < nrow(dat)) {
-      windowed[count,] <- .colMeans(dat.mat[beg:en,],m=size,n=7)
-      beg <- beg+size
-      en  <- en+size
-      count <- count+1
-  }
-  res <- na.omit(data.frame(chrom=rep(dat$chrom[1],nrow(windowed)),
-                            windowed))
+    row.est  <- ceiling(nrow(dat)/size)
+    dat.mat  <- as.matrix(dat[-1])
+    windowed <- matrix(ncol=7,nrow=row.est)
+    while(en < nrow(dat)) {
+        windowed[count,] <- .colMeans(dat.mat[beg:en,],m=size,n=7)
+        beg <- beg+size
+        en  <- en+size
+        count <- count+1
+    }
+    res <- na.omit(data.frame(chrom=rep(dat$chrom[1],nrow(windowed)),
+                              windowed))
 
-  names(res)[-1] <- names(dat[-1])
-  res
+    names(res)[-1] <- names(dat[-1])
+    res
 }
 
 # Copied from package R.utils.
 seqToIntervals <- function(idx,...) {
-  idx <- as.integer(idx)
-  idx <- unique(idx)
-  idx <- sort(idx)
-  n <- length(idx)
-  if (n == 0) 
-      return(res)
-  d <- diff(idx)
-  d <- (d > 1)
-  d <- which(d)
-  nbrOfIntervals <- length(d) + 1
-  res <- matrix(as.integer(NA), nrow = nbrOfIntervals, ncol = 2)
-  colnames(res) <- c("from", "to")
-  fromValue <- idx[1]
-  toValue <- fromValue - 1
-  lastValue <- fromValue
-  count <- 1
-  for (kk in seq(along = idx)) {
-      value <- idx[kk]
-      if (value - lastValue > 1) {
-          toValue <- lastValue
-          res[count, ] <- c(fromValue, toValue)
-          fromValue <- value
-          count <- count + 1
-      }
-      lastValue <- value
-  }
-  if (toValue < fromValue) {
-      toValue <- lastValue
-      res[count, ] <- c(fromValue, toValue)
-      count <- count + 1
-  }
-  res
+    idx <- as.integer(idx)
+    idx <- unique(idx)
+    idx <- sort(idx)
+    n <- length(idx)
+    if (n == 0) 
+        return(res)
+    d <- diff(idx)
+    d <- (d > 1)
+    d <- which(d)
+    nbrOfIntervals <- length(d) + 1
+    res <- matrix(as.integer(NA), nrow = nbrOfIntervals, ncol = 2)
+    colnames(res) <- c("from", "to")
+    fromValue <- idx[1]
+    toValue <- fromValue - 1
+    lastValue <- fromValue
+    count <- 1
+    for (kk in seq(along = idx)) {
+        value <- idx[kk]
+        if (value - lastValue > 1) {
+            toValue <- lastValue
+            res[count, ] <- c(fromValue, toValue)
+            fromValue <- value
+            count <- count + 1
+        }
+        lastValue <- value
+    }
+    if (toValue < fromValue) {
+        toValue <- lastValue
+        res[count, ] <- c(fromValue, toValue)
+        count <- count + 1
+    }
+    res
 }
 
 set.par <- function() {
-  par(mar=c(5,5.3,1.5,1), 
-      mex=0.8,
-      lwd=4.0,
-      cex=2, 
-      cex.axis=1.5,
-      cex.lab=1.5,
-      font=2,
-      font.axis=2,
-      font.lab=2,
-      font.main=2,
-      font.sub=2)
-  palette(c("black","orange","green","steelblue","purple","red","grey","brown","red","violet","salmon","goldenrod","cyan","darkgreen"))
+    par(mar=c(5,5.3,1.5,1), 
+        mex=0.8,
+        lwd=4.0,
+        cex=2, 
+        cex.axis=1.5,
+        cex.lab=1.5,
+        font=2,
+        font.axis=2,
+        font.lab=2,
+        font.main=2,
+        font.sub=2)
+    palette(c("black","orange","green","steelblue","purple","red","grey","brown","red","violet","salmon","goldenrod","cyan","darkgreen"))
 }
 
 test.plot.cnv <- function() {
