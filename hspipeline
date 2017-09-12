@@ -154,6 +154,8 @@ sub main {
             push @cvcfs, get_parent(@$seq[0]).'/'.$strain.'_raw_vars.vcf.gz';
         }
 
+        @cvcfs = sort @cvcfs;
+
         my $unique_vars_dir = $project_path.'/unique_variants';
         my $shared_vars_dir = $project_path.'/shared_variants';
         my $unique_vars =
