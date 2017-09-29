@@ -3,9 +3,9 @@ from wtforms import validators, ValidationError
 from wtforms import Form, TextField, BooleanField, SubmitField, HiddenField, TextAreaField, IntegerField
 from hsprunner import Paths
 
-class PathExists(object):        
+class PathExists(object):
 
-    def __init__(self, prefix=Paths.data_web, message=None):
+    def __init__(self, prefix=Paths.data, message=None):
         self.prefix  = prefix
         self.message = message
         self.path    = None
@@ -50,7 +50,7 @@ class SubmissionForm(Form):
              FileExists()])
 
     align = BooleanField('align', default='y')
-    trim = BooleanField('trim', default='')
+    trim = BooleanField('trim', default='y')
     find = BooleanField('find', default='y')
     compare = BooleanField('compare', default='y')
     plot = BooleanField('plot', default='y')
