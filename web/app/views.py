@@ -18,7 +18,7 @@ def process_form():
             hsp = Hsprunner(form)
             hsp_thread = threading.Thread(target=hsp.run)
             hsp_thread.start()
-            q_string = ('?outlog=' + hsp.paths.outlog + '&outlog_final=' + 
+            q_string = ('?outlog=' + hsp.paths.outlog + '&outlog_final=' +
                         hsp.paths.outlog_final)
             return redirect(url_for('running')+ q_string)
         elif request.form['submit'] == 'clear':
@@ -36,9 +36,11 @@ def running():
     outlog = None
     try:
         outlog = open(outlog_path, 'r').read()
-    except IOException as e:
+    except IOError as e:
         outlog.close()
-        print 'call failed {0}: {1}'.format(e.errno, e.strerror)
+        print('Could not open {}. Error was {}: {}'.format(outlog_path,
+                                                           e.errno,
+                                                           e.strerror))
 
     if finished:
         return render_template('finished.html', outlog=outlog)
