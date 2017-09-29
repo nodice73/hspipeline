@@ -3,23 +3,22 @@ import time
 from getpass import getuser
 from shutil import move
 from time import localtime, strftime
-from subprocess import Popen, PIPE, STDOUT, call
+from subprocess import Popen, PIPE, STDOUT, call, check_output
 from paths import Paths
 
 class Hsprunner(object):
     def __init__(self, form):
         self.timestamp = strftime("%Y%m%d%H%M", localtime())
-        self.type = 'p'
-        self.slurm_threads = 8
-        self.time = '1-0'
+        self.end_type = 'p'
+        self.threads = '-t8'
 
         self.paths = Paths(proj=form.project_path.data,
                            anc=form.anc_path.data, ref=form.ref_path.data)
 
-        self.cmd_name = os.path.join(self.paths.silo_base, 'bin/hspipeline')
+        self.cmd_name = 'hspipeline'
 
         (self.paths.outlog,
-         self.paths.outlog_final) = [os.path.join(self.paths.proj_web,
+         self.paths.outlog_final) = [os.path.join(self.paths.output,
                                                   self.timestamp + p)
                                                   for p in
                                                   ['-outlog.txt',
@@ -31,50 +30,29 @@ class Hsprunner(object):
                                                  compare=form.compare.data,
                                                  plot=form.plot.data)
 
-        self.run_args = [self.parts_to_run, self.type, self.paths.proj,
-                         self.paths.ref, self.paths.anc, self.paths.r]
+        self.cmd = " ".join([self.cmd_name,
+                             self.parts_to_run,
+                             self.threads,
+                             self.end_type,
+                             self.paths.proj,
+                             self.paths.ref,
+                             self.paths.anc,
+                             self.paths.r])
 
     def run(self):
-        run_cmd = []
-        if getuser() == 'ajwaite':
-            self.cmd_name = 'hspipeline'
-            run_cmd = [self.cmd_name, '-t2']
-        else:
-            setenv = os.path.join(self.paths.silo_base, 'bin/setenv.sh')
-            run_cmd = ['srun',
-                       #'--slurmd-debug=4',
-                       '--task-prolog={}'.format(setenv),
-                       '-t{}'.format(self.time),
-                       '-c{}'.format(self.slurm_threads),
-                       self.cmd_name, '-t{}'.format(self.slurm_threads)]
 
-        run_cmd.extend(self.run_args)
+        with open(self.paths.outlog, 'w', 0) as outfile:
+            outfile.write("command: {}\n".format(self.cmd))
 
-        outfile = None
-        try:
-            outfile = open(self.paths.outlog, 'w', 0)
-            outfile.write("command: " + " ".join(run_cmd) + '\n')
-            outfile.flush()
-        except IOError as e:
-            outfile.close()
-            print 'opening outfile failed {0}: {1}'.format(e.errno, e.strerror)
+            time.sleep(0.5)
 
-        time.sleep(0.5)
-
-        try:
-            call(run_cmd, stdout=outfile, stderr=STDOUT)
-        except Exception as e:
-            err = 'call failed {0}: {1}'.format(e.errno, e.strerror)
-            outfile.write(err + '\n')
-            outfile.flush()
-            outfile.close()
-            print err
-
-        try:
-            outfile.close()
-        except IOError as e:
-            print 'closing outfile failed {0}: {1}'.format(e.errno, e.strerror)
-
+            try:
+                call(self.cmd, stdout=outfile, stderr=STDOUT)
+            except Exception as e:
+                err = 'call failed {0}: {1}'.format(e.errno, e.strerror)
+                outfile.write(err + '\n')
+                outfile.flush()
+                print err
 
         move(self.paths.outlog, self.paths.outlog_final)
 
