@@ -30,26 +30,27 @@ class Hsprunner(object):
                                                  compare=form.compare.data,
                                                  plot=form.plot.data)
 
-        self.cmd = " ".join([self.cmd_name,
-                             self.parts_to_run,
-                             self.threads,
-                             self.end_type,
-                             self.paths.proj,
-                             self.paths.ref,
-                             self.paths.anc,
-                             self.paths.r])
+        self.cmd = [self.cmd_name,
+                    self.parts_to_run,
+                    self.threads,
+                    self.end_type,
+                    self.paths.proj,
+                    self.paths.ref,
+                    self.paths.anc,
+                    self.paths.r]
 
     def run(self):
 
         with open(self.paths.outlog, 'w', 0) as outfile:
-            outfile.write("command: {}\n".format(self.cmd))
+            outfile.write("command: {}\n".format(" ".join(self.cmd)))
 
             time.sleep(0.5)
 
             try:
                 call(self.cmd, stdout=outfile, stderr=STDOUT)
             except Exception as e:
-                err = 'call failed {0}: {1}'.format(e.errno, e.strerror)
+                err = ('Hsprunner.run() failed with error code {}: {}'.
+                       format(e.errno, e.strerror))
                 outfile.write(err + '\n')
                 outfile.flush()
                 print err
