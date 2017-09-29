@@ -43,6 +43,8 @@ def running():
                                                            e.strerror))
 
     if finished:
-        return render_template('finished.html', outlog=outlog)
+        return render_template('finished.html', outlog=outlog_final,
+                               outlog_final_location=outlog_final_location)
     else:
-        return render_template('running.html', outlog=outlog)
+        return render_template('running.html', outlog=outlog,
+                               outlog_location=outlog_location)
