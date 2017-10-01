@@ -115,6 +115,7 @@ sub main {
                 anc_folder => $anc_folder,
                 evo_folder => $anc_folder,
                 R_path     => $R_code_path,
+                nthread    => $nthread
             });
         for my $evo_folder (@$evo_folders) {
             find_cnv({
@@ -122,6 +123,7 @@ sub main {
                     anc_folder => $anc_folder,
                     evo_folder => $evo_folder,
                     R_path     => $R_code_path,
+                    nthread    => $nthread
                 });
         }
         my $end = Time::HiRes::gettimeofday();
@@ -269,10 +271,10 @@ sub pe_align {
     
     my $align = "bowtie2 -p $nthread -x $ref_location".
                 " -1 $seqs_to_align[0] -2 $seqs_to_align[1]".
-                " | samtools view -bS - > $bam";
+                " | samtools view -bS -@ $nthread - > $bam";
 
-    my $sort = "samtools sort $bam -o $sorted";
-    my $index = "samtools index $sorted";
+    my $sort = "samtools sort -@ $nthread $bam -o $sorted";
+    my $index = "samtools index -@ $nthread $sorted";
 
     print "$program_tag Aligning...\n";
     run_and_time($program_tag, 'aligning', $align);
@@ -290,6 +292,7 @@ sub find_cnv {
     my $anc_folder = $p->{anc_folder};
     my $evo_folder = $p->{evo_folder};
     my $R_path     = $p->{R_path};
+    my $nthread    = $p->{nthread};
 
     my $program_tag = "[find_cnv]";
 
@@ -313,14 +316,14 @@ sub find_cnv {
     my $get_depth = "samtools depth -a $sorted > $depth";
 
     my $compute_likelihoods = 
-        "bcftools mpileup -B -Ou -C50 -q30 -f $ref_seq $sorted > ".
+        "bcftools mpileup -B -Ou -C50 -q30 --threads $nthread -f $ref_seq $sorted > ".
         $likelihoods_bcf;
 
     my $call_vars = 
-        "bcftools call --ploidy 1 -mv -Ov $likelihoods_bcf > $var_vcf";
+        "bcftools call --ploidy 1 --threads $nthread -mv -Ov $likelihoods_bcf > $var_vcf";
 
-    my $compress_vcf = "bcftools view $var_vcf -Oz > $var_cvcf";
-    my $index_cvcf = "bcftools index $var_cvcf";
+    my $compress_vcf = "bcftools view --threads $nthread $var_vcf -Oz > $var_cvcf";
+    my $index_cvcf = "bcftools index --threads $nthread $var_cvcf";
 
     print "$program_tag Getting read depth...\n";
     run_and_time($program_tag, 'depth', $get_depth);
@@ -555,13 +558,13 @@ sub se_align {
 
     my $index = "samtools index $sorted.bam";
     my $make_pileup = 
-    "samtools mpileup -BQ0 -d10000000 -f $ref_seq  $sorted.bam > $pileup";
+    "samtools mpileup -BQ0 -d10000000 -@ $nthread -f $ref_seq $sorted.bam > $pileup";
     my $make_pileup_bcf = 
-    "samtools mpileup -Bg -C50 -q30 -f $ref_seq $sorted.bam > $pileup_bcf";
+    "samtools mpileup -Bg -C50 -q30 -@ $nthread -f $ref_seq $sorted.bam > $pileup_bcf";
 
-    my $call_vars   = "bcftools call -Nbvcg $pileup_bcf > $var_bcf";
+    my $call_vars   = "bcftools call -Nbvcg --threads $nthread $pileup_bcf > $var_bcf";
 
-    my $vars_to_vcf = "bcftools view $var_bcf > $var_vcf";
+    my $vars_to_vcf = "bcftools view --threads $nthread $var_bcf > $var_vcf";
 
     # system calls
     print("$program_tag processing strain $strain...\n");
