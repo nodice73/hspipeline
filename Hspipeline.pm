@@ -66,8 +66,7 @@ sub generate_paths {
                         my $search = $r.'_\d+';
                         my @files = sort grep /$search/, @dir;
                         if (scalar @files < 2) {
-                            print "\n\tOnly found one file,
-                                   skipping concatenation.\n";
+                            print "\n\tOnly found one file, skipping concatenation.\n";
                             push @cats, $files[0];
                             next;
                         }
