@@ -54,7 +54,6 @@ sub main {
         chop if $_ =~ /\/$/;
     }
 
-
     my $align_func;
     my $pattern;
     my $concat;
@@ -71,6 +70,7 @@ sub main {
     }
 
     print "$program_tag Beginning pipeline...\n";
+
     index_reference($ref_seq);
 
     print "$program_tag Making paths...\n";
@@ -206,10 +206,6 @@ sub main {
         my $end = Time::HiRes::gettimeofday();
         print_time("compare", $start, $end);
     }
-
-    print "$program_tag Setting folder permissions...\n";
-    my $chmod = "chmod -R g+w $project_path";
-    run_and_time($program_tag, 'setting folder permissions', $chmod);
 
     print "$program_tag Indexing vcfs...\n";
 
