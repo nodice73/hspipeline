@@ -150,6 +150,8 @@ sub main {
     }
 
     # Creates in_x_and_y.txt, in_x_not_y.txt, etc. files.
+    my $unique_vars_dir = $project_path.'/unique_variants';
+    my $shared_vars_dir = $project_path.'/shared_variants';
     if ($compare) {
         my @cvcfs = ();
         while (my ($strain,$seq) = each %$seq_paths) {
@@ -158,8 +160,6 @@ sub main {
 
         @cvcfs = sort @cvcfs;
 
-        my $unique_vars_dir = $project_path.'/unique_variants';
-        my $shared_vars_dir = $project_path.'/shared_variants';
         my $unique_vars =
             "bcftools isec -p $unique_vars_dir --nfiles=1 ".
             join(" ", @cvcfs);
@@ -209,12 +209,13 @@ sub main {
         print_time("compare", $start, $end);
     }
 
-    print "$program_tag Indexing vcfs...\n";
+    #print "$program_tag Indexing vcfs...\n";
+    #
+    #my $index_vcfs = "find $project_path -name '*.vcf' | ".
+    #                 "xargs -I{} igvtools index {}";
+    #run_and_time($program_tag, 'indexing vcfs', $index_vcfs);
 
-    my $index_vcfs = "find $project_path -name '*.vcf' | ".
-                     "xargs -I{} igvtools index {}";
-    run_and_time($program_tag, 'indexing vcfs', $index_vcfs);
-
+    system("chmod -R a+w $unique_vars_dir $shared_vars_dir");
     print "Done!\n\n";
 }
 
@@ -457,6 +458,7 @@ sub compare_to_anc {
           " that are not in ancestral strain...";
     my $vcfunique = "vcfunique -d$vcf_tol $anc $evo $save_folder";
     run_and_time($program_tag, 'comparing', $vcfunique);
+    system("chmod a+w $save_folder");
 
     print "done!\n";
 }

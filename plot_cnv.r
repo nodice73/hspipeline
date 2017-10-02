@@ -12,6 +12,7 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
     anc.name <- basename(anc.path)
 
     if (!file.exists(anc.cov.plot.path)) dir.create(anc.cov.plot.path)
+    system(sprintf("chmod a+w %s", anc.cov.plot.path))
 
     #mito.label <- "chrM"
     mito.label <- "mitochondrion"
@@ -32,10 +33,15 @@ plot.cnv <- function(anc.path, strain.paths, smooth.window=50,
     for (strain.path in strain.paths) {
         strain.cov.plot.path <- file.path(strain.path,cov.folder)
         strain.cnv.plot.path <- file.path(strain.path,cnv.folder)
-        if (!file.exists(strain.cov.plot.path))
+        if (!file.exists(strain.cov.plot.path)) {
             dir.create(strain.cov.plot.path)
-        if (!file.exists(strain.cnv.plot.path))
+        }
+        if (!file.exists(strain.cnv.plot.path)) {
             dir.create(strain.cnv.plot.path)
+        }
+        system(sprintf('chmod a+w %s %s',
+                       strain.cov.plot.path,
+                       strain.cnv.plot.path))
 
         strain.name <- basename(strain.path)
         data.file <- file.path(strain.path, 
