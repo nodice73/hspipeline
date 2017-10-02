@@ -249,7 +249,7 @@ sub pe_align {
     for my $seq (@seqs) {
         next if $seq =~ /trimmed/;
         next unless $seq =~ /^(.*)\.fastq\.gz$/;
-        print "seq: $seq\n";
+        print "\tfound seq: $seq\n";
         my $name = $1;
         my $trimmed_name = $name.'_trimmed.fastq';
         push @trimmed_names, $trimmed_name;

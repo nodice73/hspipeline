@@ -61,12 +61,12 @@ sub generate_paths {
                 # Uncompress, concatenate, and recompress fastq files.
                 if (scalar @cats < 2) {
                     @cats = ();
-                    print "$program_tag concatenating fastq files...";
+                    print "$program_tag concatenating fastq files...\n";
                     foreach my $r ("R1","R2") {
                         my $search = $r.'_\d+';
                         my @files = sort grep /$search/, @dir;
                         if (scalar @files < 2) {
-                            print "\n\tOnly found one file, skipping concatenation.\n";
+                            print "\tOnly found one file, skipping concatenation.\n";
                             push @cats, $files[0];
                             next;
                         }
