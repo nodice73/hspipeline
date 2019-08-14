@@ -1,6 +1,15 @@
 #!/usr/bin/perl
 
-use lib '.';
+
+# Get path to directory that contains the code.
+my $rundir = '';
+BEGIN {
+    use File::Basename;
+    use Cwd qw(abs_path);
+    $rundir = dirname(abs_path($0));
+}
+
+use lib $rundir;
 use strict;
 use warnings;
 use Getopt::Std;
