@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-
 # Get path to directory that contains the code.
 my $rundir = '';
 BEGIN {
@@ -31,10 +30,12 @@ sub main {
     my $check_verbose = 1 ? $opts{'c'} : 0;
 
     my $missing = check_install($check_verbose);
-    if ($missing) {
+    if (@$missing) {
+        print "Couldn't find:\n\t";
+        print join("\n\t", @$missing), "\n";
         exit 0;
     }
-    if (not $missing and $opts{'c'}) {
+    if (not @$missing and $opts{'c'}) {
         print "All requirements found.\n";
         exit 0;
     }
@@ -624,7 +625,7 @@ sub se_align {
 
 sub check_install {
     my $verbose = shift;
-    my $missing = 0;
+    my @missing = ();
     for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
             bowtie2-inspect cnvfind sickle igvtools 
             igvtools.jar bcftools vcfutils.pl vcfunique/)
@@ -635,8 +636,9 @@ sub check_install {
             print $loc if $verbose;
         } else {
             print "Not found!\n" if $verbose;
-            $missing = 1;
+            push(@missing, $_);
         }
     }
-    return $missing;
+    print "\n" if $verbose;
+    return \@missing;
 }
