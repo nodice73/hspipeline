@@ -28,8 +28,9 @@ sub main {
     my %opts;
     getopts('AFCPcxt:', \%opts);
     $opts{'t'} = $opts{'t'} || 1;
+    my $check_verbose = 1 ? $opts{'c'} : 0;
 
-    my $missing = check_install();
+    my $missing = check_install($check_verbose);
     if ($missing) {
         exit 0;
     }
@@ -39,7 +40,6 @@ sub main {
     }
 
     usage() unless @ARGV == 5;
-    check_install();
 
     # Controls which parts will be run
     my $align = $opts{'A'} || 0;
@@ -623,17 +623,18 @@ sub se_align {
 }
 
 sub check_install {
+    my $verbose = shift;
     my $missing = 0;
     for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
             bowtie2-inspect cnvfind sickle igvtools 
             igvtools.jar bcftools vcfutils.pl vcfunique/)
     {
-        print "checking $_...";
+        print "checking $_..." if $verbose;
         my $loc = `which $_`;
         if ($loc) {
-            print $loc;
+            print $loc if $verbose;
         } else {
-            print "Not found!\n";
+            print "Not found!\n" if $verbose;
             $missing = 1;
         }
     }
