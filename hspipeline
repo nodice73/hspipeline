@@ -29,7 +29,15 @@ sub main {
     getopts('AFCPcxt:', \%opts);
     $opts{'t'} = $opts{'t'} || 1;
 
-    check_install() if $opts{'c'};
+    my $missing = check_install();
+    if ($missing) {
+        exit 0;
+    }
+    if (not $missing and $opts{'c'}) {
+        print "All requirements found.\n";
+        exit 0;
+    }
+
     usage() unless @ARGV == 5;
     check_install();
 
@@ -620,10 +628,14 @@ sub check_install {
             bowtie2-inspect cnvfind sickle igvtools 
             igvtools.jar bcftools vcfutils.pl vcfunique/)
     {
-        if (system("which $_ >/dev/null")) {
+        print "checking $_...";
+        my $loc = `which $_`;
+        if ($loc) {
+            print $loc;
+        } else {
+            print "Not found!\n";
             $missing = 1;
-            print "$_ is not installed.\n";
         }
     }
-    exit if $missing;
+    return $missing;
 }
