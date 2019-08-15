@@ -172,6 +172,8 @@ sub main {
     # Creates in_x_and_y.txt, in_x_not_y.txt, etc. files.
     my $unique_vars_dir = $project_path.'/unique_variants';
     my $shared_vars_dir = $project_path.'/shared_variants';
+    my $any_vars_dir    = $project_path.'/all_variants';
+
     if ($compare) {
         my @cvcfs = ();
         while (my ($strain,$seq) = each %$seq_paths) {
@@ -186,6 +188,9 @@ sub main {
         my $shared_vars =
             "bcftools isec -p $shared_vars_dir --nfiles=$n_strains ".
             join(" ", @cvcfs);
+        my $any_vars =
+            "bcftools isec -p $any_vars_dir --nfiles +1 ".
+            join(" ", @cvcfs);
 
 
         print "\n$program_tag Finding unique mutations...\n";
@@ -193,6 +198,9 @@ sub main {
 
         print "\n$program_tag Finding shared mutations...\n";
         run_and_time($program_tag, 'shared vars', $shared_vars);
+
+        print "\n$program_tag Finding all mutations...\n";
+        run_and_time($program_tag, 'any vars', $any_vars);
 
 
         print "\n[hspipeline] Comparing to ancestor...\n";
@@ -235,7 +243,7 @@ sub main {
     #                 "xargs -I{} igvtools index {}";
     #run_and_time($program_tag, 'indexing vcfs', $index_vcfs);
 
-    system("chmod -R a+w $unique_vars_dir $shared_vars_dir");
+    system("chmod -R a+w $unique_vars_dir $shared_vars_dir $any_vars_dir");
     print "Done!\n\n";
 }
 
