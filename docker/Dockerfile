@@ -28,51 +28,46 @@ RUN apt-get install -y libtool pkg-config
 # samtools
 RUN apt-get install -y libncurses-dev
 
-RUN mkdir code && cd code
+RUN mkdir code
 
-RUN cd bcftools
-RUN autoheader && autoconf && ./configure --enable-libgsl --enable-perl-filters
+RUN cd code && \
+    git clone https://github.com/samtools/bcftools.git && \
+    git clone https://github.com/BenLangmead/bowtie2.git && \
+    git clone https://github.com/agordon/fastx_toolkit.git && \
+    git clone https://github.com/agordon/libgtextutils.git && \
+    git clone https://github.com/samtools/samtools.git && \
+    git clone https://github.com/samtools/htslib.git && \
+    git clone https://github.com/najoshi/sickle.git && \
+    git clone https://github.com/nodice73/hspipeline.git
 
-RUN cd ../bowtie2
-RUN make
+RUN cd code/bcftools && \
+    autoheader && autoconf && \
+    ./configure --enable-libgsl --enable-perl-filters
 
-RUN cd ../libgtextutils/
-RUN ./reconf && ./configure && make install
+RUN cd code/bowtie2 && make
 
-RUN cd ../fastx_toolkit
-RUN ./reconf && ./configure
+RUN cd code/libgtextutils && \
+    ./reconf && ./configure && make install
 
-# They include a "-Werror" flag which treats warnings as errors
-# and one of their files throws a warning...
-RUN sed -i 's/-Werror *//g' src/fasta_formatter/Makefile
-RUN make
+RUN cd code/fastx_toolkit && \
+    ./reconf && ./configure && \
+    ## They include a "-Werror" flag which treats warnings as errors
+    ## and one of their files throws a warning...
+    sed -i 's/-Werror *//g' src/fasta_formatter/Makefile && \
+    make
 
-RUN cd ../samtools
-RUN autoheader && autoconf -Wno-syntax && ./configure && make
+RUN cd code/samtools && \
+    autoheader && autoconf -Wno-syntax && ./configure && make
 
-RUN cd ../htslib
-RUN autoheader && autoconf && ./configure && make
+RUN cd code/htslib && \
+    autoheader && autoconf && ./configure && make
 
-RUN cd ../sickle
-RUN make
+RUN cd code/sickle && make
 
-RUN git clone https://github.com/samtools/bcftools.git
-RUN git clone https://github.com/BenLangmead/bowtie2.git
-RUN git clone https://github.com/agordon/fastx_toolkit.git
-RUN git clone https://github.com/agordon/libgtextutils.git
-RUN git clone https://github.com/samtools/samtools.git
-RUN git clone https://github.com/samtools/htslib.git
-RUN git clone https://github.com/najoshi/sickle.git
-
-RUN git clone https://github.com/nodice73/hspipeline.git
-
-RUN 
-
-
-# Expose Apache
+## Expose Apache
 EXPOSE 80
 
-# Launch Apache
-#CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
+## Launch Apache
+CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
 
 CMD /bin/bash
