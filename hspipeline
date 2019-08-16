@@ -342,7 +342,7 @@ sub find_cnv {
     my $var_vcf      = $pfx.'_raw_vars.vcf';
     my $var_cvcf     = $var_vcf.'.gz';
 
-    my $get_depth = "samtools depth -a $sorted > $depth";
+    my $get_depth = "samtools depth -a -d1000000 $sorted > $depth";
 
     my $compute_likelihoods = 
         "bcftools mpileup -B -Ou -C50 -q30 --threads $nthread -f $ref_seq $sorted > ".
