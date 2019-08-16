@@ -1,18 +1,21 @@
 FROM ubuntu:18.04
 
-# Apache ENVs
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-ENV APACHE_SERVER_NAME localhost
-
+#
+#
 # Install services, packages and do cleanup
+#
+#
+
 RUN apt-get update
 
 # Basic packages
-RUN apt-get install -y apache2 python git build-essential autoconf vim
+RUN apt-get install -y \
+    apt-utils \
+    apache2 apache2-utils ssl-cert \
+    python python-dev python-pip git build-essential autoconf vim \
+    libapache2-mod-wsgi
+
+RUN service apache2 restart
 
 # bcftools
 RUN apt-get install -y zlib1g-dev libgsl0-dev libbz2-dev \
@@ -28,7 +31,20 @@ RUN apt-get install -y libtool pkg-config
 # samtools
 RUN apt-get install -y libncurses-dev
 
+# cleanup
+RUN apt-get clean
+
+
+#
+#
+#
+# Build third-party tools
+#
+#
+#
+
 RUN mkdir code
+RUN chmod o+rx code
 
 RUN cd code && \
     git clone https://github.com/samtools/bcftools.git && \
@@ -64,10 +80,27 @@ RUN cd code/htslib && \
 
 RUN cd code/sickle && make
 
-## Expose Apache
+#
+#
+#
+# Setup Apache
+#
+#
+#
+
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOCK_DIR /var/lock/apache2
+ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
+ENV APACHE_SERVER_NAME localhost
+
+RUN ln -s /code/hspipeline /var/www
+RUN ln -s /code/hspipeline/web/hspipeline.conf /etc/apache2/sites-available
+RUN a2ensite hspipeline.conf && a2dissite 000-default.conf
+RUN apache2ctl restart
+
 EXPOSE 80
 
 ## Launch Apache
 CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
-
-CMD /bin/bash
