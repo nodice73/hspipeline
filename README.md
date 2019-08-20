@@ -16,3 +16,15 @@ Make sure the following tools are compiled and available on your system PATH:
 * [htslib](https://github.com/samtools/htslib)
 * [sickle](https://github.com/najoshi/sickle)
 
+# Symbols in plots
+(until I add legends...)
+
+## Coverage plots
+* Magenta points = Less than 5 reads for that position.
+
+## anc/evo coverage ratio plots
+* Orange X = No reads in evolved strain
+* Purple X = No reads in ancestor strain
+* Cyan X = No reads in either strain
+
+* Red circles = Point is > *x* sds away from mean ratio for that chromosome (*x* = 3 by default).
