@@ -635,8 +635,8 @@ sub check_install {
     my $verbose = shift;
     my @missing = ();
     for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
-            bowtie2-inspect cnvfind sickle igvtools 
-            igvtools.jar bcftools vcfutils.pl vcfunique/)
+            bowtie2-inspect cnvfind sickle bcftools
+            vcfutils.pl vcfunique/)
     {
         print "checking $_..." if $verbose;
         my $loc = `which $_`;
