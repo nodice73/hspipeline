@@ -22,22 +22,22 @@ Each fastq file (or pair of fastq files for paired-end reads) should go in a dir
     top-level directory
     |
     +----project1
-       |
-       +----Sample_1
-       |    |
-       |    +----sample1_R1.fastq.gz
-       |    |
-       |    +----sample1_R2.fastq.gz
-       |
-       +----Sample_2  
-       |    |
-       |    +----sample2_R1.fastq.gz
-       |    |
-       |    +----sample2_R2.fastq.gz
-       |
-       ...
-       |
-       +----Sample_N
+         |
+         +----Sample_1
+         |    |
+         |    +----sample1_R1.fastq.gz
+         |    |
+         |    +----sample1_R2.fastq.gz
+         |
+         +----Sample_2  
+         |    |
+         |    +----sample2_R1.fastq.gz
+         |    |
+         |    +----sample2_R2.fastq.gz
+         |
+         ...
+         |
+         +----Sample_N
 ```
 
 ## Symbols in plots
