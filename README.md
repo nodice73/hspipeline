@@ -11,7 +11,6 @@ Make sure the following tools are compiled and available on your system PATH:
 
 * [bcftools](https://github.com/samtools/bcftools)
 * [bowtie2](https://github.com/BenLangmead/bowtie2)
-* [fastx_toolkit](https://github.com/agordon/fastx_toolkit) (which requires [libgtextutils](https://github.com/agordon/libgtextutils))
 * [samtools](https://github.com/samtools/samtools)
 * [htslib](https://github.com/samtools/htslib)
 * [sickle](https://github.com/najoshi/sickle)
