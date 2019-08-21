@@ -1,5 +1,5 @@
 # hspipeline
-As the name suggests, `hspipeline` is a pipeline that connects existing tools together to analyse high-throughput sequencing data.
+`hspipeline` connects existing tools together to analyse high-throughput sequencing data.
 
 `hspipeline` is a command-line tool. Run it without arguments to see instructions and a detailed description of the arguments. 
 
@@ -15,6 +15,31 @@ Make sure the following tools are compiled and available on your system PATH:
 * [samtools](https://github.com/samtools/samtools)
 * [htslib](https://github.com/samtools/htslib)
 * [sickle](https://github.com/najoshi/sickle)
+
+## Directory structure
+Each fastq file (or pair of fastq files for paired-end reads) should go in a directory named after its sample name. All the sample folders should go into a project directory. All of the project directories should go into a directory.
+
+```
+    top-level directory
+    |
+    +----project1
+       |
+       +----Sample_1
+       |    |
+       |    +----sample1_R1.fastq.gz
+       |    |
+       |    +----sample1_R2.fastq.gz
+       |
+       +----Sample_2  
+       |    |
+       |    +----sample2_R1.fastq.gz
+       |    |
+       |    +----sample2_R2.fastq.gz
+       |
+       ...
+       |
+       +----Sample_N
+```
 
 ## Symbols in plots
 (until I add legends...)
