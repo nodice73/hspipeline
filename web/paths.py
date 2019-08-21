@@ -8,8 +8,6 @@ class Paths(object):
     output = os.path.join(data, 'output')
     r = '/var/www/hspipeline'
 
-    os.mkdirs(output)
-
     def __init__(self, proj=None, anc=None, ref=None):
         self.outlog = ''
         self.outlog_final = ''
@@ -19,3 +17,6 @@ class Paths(object):
 
         (self.proj, self.anc, self.ref) = [os.path.join(Paths.data, p)
                                            for p in [proj, anc, ref]]
+
+        # Make the output folder if it doesn't exist.
+        os.mkdirs(output)
