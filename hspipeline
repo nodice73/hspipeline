@@ -634,7 +634,7 @@ sub se_align {
 sub check_install {
     my $verbose = shift;
     my @missing = ();
-    for (qw/fastq_quality_trimmer R bowtie2 bowtie2-build
+    for (qw/R bowtie2 bowtie2-build
             bowtie2-inspect cnvfind sickle bcftools
             vcfutils.pl vcfunique/)
     {
