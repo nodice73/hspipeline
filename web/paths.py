@@ -17,6 +17,3 @@ class Paths(object):
 
         (self.proj, self.anc, self.ref) = [os.path.join(Paths.data, p)
                                            for p in [proj, anc, ref]]
-
-        # Make the output folder if it doesn't exist.
-        os.mkdirs(Paths.output)
