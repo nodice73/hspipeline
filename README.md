@@ -11,7 +11,6 @@ Make sure the following tools are compiled and available on your system PATH:
 
 * [bcftools](https://github.com/samtools/bcftools)
 * [bowtie2](https://github.com/BenLangmead/bowtie2)
-* [fastx_toolkit](https://github.com/agordon/fastx_toolkit) (which requires [libgtextutils](https://github.com/agordon/libgtextutils))
 * [samtools](https://github.com/samtools/samtools)
 * [htslib](https://github.com/samtools/htslib)
 * [sickle](https://github.com/najoshi/sickle)
@@ -23,22 +22,22 @@ Each fastq file (or pair of fastq files for paired-end reads) should go in a dir
     top-level directory
     |
     +----project1
-       |
-       +----Sample_1
-       |    |
-       |    +----sample1_R1.fastq.gz
-       |    |
-       |    +----sample1_R2.fastq.gz
-       |
-       +----Sample_2  
-       |    |
-       |    +----sample2_R1.fastq.gz
-       |    |
-       |    +----sample2_R2.fastq.gz
-       |
-       ...
-       |
-       +----Sample_N
+         |
+         +----Sample_1
+         |    |
+         |    +----sample1_R1.fastq.gz
+         |    |
+         |    +----sample1_R2.fastq.gz
+         |
+         +----Sample_2  
+         |    |
+         |    +----sample2_R1.fastq.gz
+         |    |
+         |    +----sample2_R2.fastq.gz
+         |
+         ...
+         |
+         +----Sample_N
 ```
 
 ## Symbols in plots

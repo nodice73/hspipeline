@@ -39,6 +39,9 @@ class Hsprunner(object):
                     self.paths.anc,
                     self.paths.r]
 
+        os.makedirs(self.paths.output)
+        time.sleep(0.5)
+
     def run(self):
 
         with open(self.paths.outlog, 'w', 0) as outfile:
