@@ -63,8 +63,6 @@ RUN chmod o+rx code
 RUN cd code && \
     git clone https://github.com/samtools/bcftools.git && \
     git clone https://github.com/BenLangmead/bowtie2.git && \
-    git clone https://github.com/agordon/fastx_toolkit.git && \
-    git clone https://github.com/agordon/libgtextutils.git && \
     git clone https://github.com/samtools/samtools.git && \
     git clone https://github.com/samtools/htslib.git && \
     git clone https://github.com/najoshi/sickle.git && \
@@ -81,24 +79,13 @@ RUN cd code/bcftools && \
 
 RUN cd code/bowtie2 && make
 
-RUN cd code/libgtextutils && \
-    ./reconf && ./configure && make install
-
-RUN cd code/fastx_toolkit && \
-    ./reconf && ./configure && \
-    ## They include a "-Werror" flag which treats warnings as errors
-    ## and one of their files throws a warning...
-    sed -i 's/-Werror *//g' src/fasta_formatter/Makefile && \
-    make
-
 RUN cd code/samtools && \
     autoheader && autoconf -Wno-syntax && ./configure && make
 
 RUN cd code/sickle && make
 
 # Link binary files to common location.
-RUN ln -s /code/fastx_toolkit/src/fastq_quality_trimmer/fastq_quality_trimmer /bin/ && \
-    ln -s /code/bcftools/bcftools /bin/ && \
+RUN ln -s /code/bcftools/bcftools /bin/ && \
     ln -s /code/bowtie2/bowtie2 /bin/ && \
     ln -s /code/bowtie2/bowtie2-build /bin/ && \
     ln -s /code/bowtie2/bowtie2-inspect /bin/ && \
