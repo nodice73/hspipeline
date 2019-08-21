@@ -19,4 +19,4 @@ class Paths(object):
                                            for p in [proj, anc, ref]]
 
         # Make the output folder if it doesn't exist.
-        os.mkdirs(output)
+        os.mkdirs(Paths.output)
