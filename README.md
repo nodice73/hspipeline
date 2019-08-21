@@ -5,7 +5,7 @@ As the name suggests, `hspipeline` is a pipeline that connects existing tools to
 
 Upon execution, `hspipeline` will first check to see if all necessary tools are on the path and will exit if they can't be found.
 
-# Tools needed to run the pipeline
+## Tools needed to run the pipeline
 
 Make sure the following tools are compiled and available on your system PATH:
 
@@ -16,15 +16,26 @@ Make sure the following tools are compiled and available on your system PATH:
 * [htslib](https://github.com/samtools/htslib)
 * [sickle](https://github.com/najoshi/sickle)
 
-# Symbols in plots
+## Symbols in plots
 (until I add legends...)
 
-## Coverage plots
+### Coverage plots
 * Magenta points = Less than 5 reads for that position.
 
-## anc/evo coverage ratio plots
+### anc/evo coverage ratio plots
 * Orange X = No reads in evolved strain
 * Purple X = No reads in ancestor strain
 * Cyan X = No reads in either strain
 
 * Red circles = Point is > *x* sds away from mean ratio for that chromosome (*x* = 3 by default).
+
+## Docker
+To run `hspipeline` as a docker container:
+
+1. [Install docker](https://www.docker.com/products/docker-desktop)
+2. Make a folder to hold the sequence data somewhere on your computer.
+3. Build and run docker in `hspipeline` folder:
+
+       $ docker build docker
+       $ docker run -it -p 9876:80 \
+                    --mount type=bind,source=<location on computer>,target=/seq_data
