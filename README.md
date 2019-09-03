@@ -45,7 +45,7 @@ To run `hspipeline` as a docker container:
 
 1. [Install docker](https://www.docker.com/products/docker-desktop)
 
-2. Make a directory to hold the sequence data somewhere on your computer (this is the "top-level directory" in the **Directory structure** diagram).
+2. Make a directory to hold the sequence data somewhere on your computer (this is the "top-level directory" in the [**Directory structure**](https://github.com/nodice73/hspipeline/blob/master/README.md#Directory-structure) diagram).
 
 3. Move your project-level directory into the top-level directory.
 
