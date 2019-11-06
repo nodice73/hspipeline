@@ -57,7 +57,8 @@ To run `hspipeline` as a docker container:
 
        $ docker build docker
        $ docker run -it -p 9876:80 \
-                    --mount type=bind,source=<location on computer>,target=/seq_data
+                    --mount type=bind,source=<location on computer>,target=/seq_data \
+                    <image hash>
 
 **NOTE:** If you want to use symlinks instead of copies of your data files, you need to mount the directories containing the original (unlinked) data as well so that the links will be valid inside the docker environment.
 
