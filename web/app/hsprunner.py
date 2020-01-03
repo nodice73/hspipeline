@@ -39,8 +39,9 @@ class Hsprunner(object):
                     self.paths.anc,
                     self.paths.r]
 
-        os.makedirs(self.paths.output)
-        time.sleep(0.5)
+        if not os.path.exists(self.paths.output):
+            os.makedirs(self.paths.output)
+            time.sleep(0.5)
 
     def run(self):
 
