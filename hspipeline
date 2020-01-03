@@ -269,6 +269,9 @@ sub pe_align {
     my $singles      = $pfx.'_singles.fastq';
     my $bam          = $pfx.'_aligned.bam';
     my $sorted       = $pfx.'_sorted.bam';
+    for ($singles, $bam, $sorted) {
+        unlink $_ or warn "Could not unlink $_: $!" if -e $_;
+    }
 
     print "$program_tag Processing $strain_name...\n";
 
@@ -290,6 +293,9 @@ sub pe_align {
 
     if ($trim_reads) {
         @seqs_to_align = @trimmed_names;
+        for (@trimmed_names) {
+            unlink $_ or warn "Could not unlink $_: $!" if -e $_;
+        }
 
         print "$program_tag Trimming reads...\n";
         my $trim = "sickle pe -t sanger -x".
