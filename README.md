@@ -16,7 +16,7 @@ Make sure the following tools are compiled and available on your system PATH:
 * [sickle](https://github.com/najoshi/sickle)
 
 ## Directory structure
-Each fastq file (or pair of fastq files for paired-end reads) should go in a directory named after its sample name. All the sample folders should go into a project directory. All of the project directories should go into a directory.
+Each fastq file (or pair of fastq files for paired-end reads) should go in a directory named after its sample name. All the sample folders should go into a project directory. All of the project directories should go into a top-level directory. See diagram below.
 
 ```
     top-level directory
@@ -40,6 +40,29 @@ Each fastq file (or pair of fastq files for paired-end reads) should go in a dir
          +----Sample_N
 ```
 
+## Docker
+To run `hspipeline` as a docker container:
+
+1. [Install docker](https://www.docker.com/products/docker-desktop)
+
+2. Make a directory to hold the sequence data somewhere on your computer (this is the "top-level directory" in the [**Directory structure**](https://github.com/nodice73/hspipeline/blob/master/README.md#Directory-structure) diagram).
+
+3. Move your project-level directory into the top-level directory.
+
+3. Make the top-level directory and everything in it world-writable (apache runs as user 'www-data' and needs to write to these folders).
+
+       $ chmod -R a+w /path/to/top_level_directory
+
+4. Build and run docker in `hspipeline` folder:
+
+       $ docker build docker
+       $ docker run -it -p 9876:80 \
+                    --mount type=bind,source=<location on computer>,target=/seq_data \
+                    <image hash>
+
+**NOTE:** If you want to use symlinks instead of copies of your data files, you need to mount the directories containing the original (unlinked) data as well so that the links will be valid inside the docker environment.
+
+
 ## Symbols in plots
 (until I add legends...)
 
@@ -52,14 +75,3 @@ Each fastq file (or pair of fastq files for paired-end reads) should go in a dir
 * Cyan X = No reads in either strain
 
 * Red circles = Point is > *x* sds away from mean ratio for that chromosome (*x* = 3 by default).
-
-## Docker
-To run `hspipeline` as a docker container:
-
-1. [Install docker](https://www.docker.com/products/docker-desktop)
-2. Make a folder to hold the sequence data somewhere on your computer.
-3. Build and run docker in `hspipeline` folder:
-
-       $ docker build docker
-       $ docker run -it -p 9876:80 \
-                    --mount type=bind,source=<location on computer>,target=/seq_data
