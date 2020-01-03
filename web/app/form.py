@@ -39,6 +39,8 @@ class FileExists(PathExists):
             raise ValidationError(self.message)
 
 class SubmissionForm(Form):
+    top_level_path = Paths.data
+
     project_path = TextField('project folder',
             [validators.Required(message='Must include project path'),
              PathExists()])
