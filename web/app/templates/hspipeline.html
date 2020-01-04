@@ -6,9 +6,10 @@
         <div class="path">
             <fieldset class="path">
                 <legend><b>Paths</b></legend>
-                <p>All paths are relative to the
-                <a href="https://github.com/nodice73/hspipeline/blob/master/README.md#Directory-structure">top-level directory</a>
-                '{{form.top_level_path}}'.
+                <p>All paths are relative to
+                <i>{{form.top_level_path}}</i></p>
+                <p>(The
+                <a href="https://github.com/nodice73/hspipeline/blob/master/README.md#Directory-structure">top-level directory</a>)
                 </p>
                 {{render_field(form.project_path)}}
                 {{render_field(form.anc_path)}}
