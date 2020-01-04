@@ -62,6 +62,26 @@ To run `hspipeline` as a docker container:
 
 **NOTE:** If you want to use symlinks instead of copies of your data files, you need to mount the directories containing the original (unlinked) data as well so that the links will be valid inside the docker environment.
 
+## Server
+To install `hspipeline` on an apache2 server:
+
+1. symlink web/hspipeline.conf to apache's `sites-available` folder, then symlink from `sites-available` to `sites-enabled`.
+       
+       $ sudo ln -s /path/to/hspipeline.conf /etc/apache2/sites-available
+       $ sudo ln -s /etc/apache2/sites-available/hspipeline.conf /etc/apache2/sites-enabled
+       
+ 2. symlink the hspipeline folder to /var/www
+ 
+        $ sudo ln -s /path/to/hspipeline /var/www
+        
+ 3. Create a top-level folder and make it readable/writable by everyone
+ 
+        $ mkdir ~/seq_data
+        $ chmod a+w ~/seq_data
+        
+ 4. Update the [Paths](https://github.com/nodice73/hspipeline/blob/master/web/paths.py) class (located in `web/paths.py`) to point to the location of the various folders.
+ 
+ 5. Restart apache (`sudo apache2ctl restart` on Ubuntu) and go to your_domain/hspipeline
 
 ## Symbols in plots
 (until I add legends...)
